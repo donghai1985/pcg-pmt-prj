@@ -174,7 +174,7 @@ parameter                   ADDR_WIDTH          = 16    ;
 parameter                   LOWPASS_PARA_NUM    = 1     ;
 parameter                   FIR_TAP_NUM         = 51    ;
 parameter                   DS_PARA_NUM         = 2     ;
-parameter                   VERSION             = "PCG_PMTM_v1.5.5     ";
+parameter                   VERSION             = "PCG_PMTM_v1.5.6     ";
 
 // PMT spi slave
 wire                        slave_wr_en                 ;

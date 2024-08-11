@@ -133,7 +133,7 @@ reg     [16-1:0]                    circle_lose_num_delta   = 'd875;
 reg     [16-1:0]                    uniform_circle          = 'd313;
 reg                                 pre_track_dbg           = 'd0;
 reg     [16-1:0]                    light_spot_spacing      = 'd55;
-reg     [16-1:0]                    check_window            = 'd1;
+reg     [16-1:0]                    check_window            = 'd0;
 reg     [16-1:0]                    haze_up_limit           = 'd10000;
 
 reg                                 acc_defect_en           = 'd1;
