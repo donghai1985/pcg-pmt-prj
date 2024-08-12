@@ -104,7 +104,7 @@ reg_delay #(
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 
 always @(posedge clk_i) begin
-    if(aurora_upmode_i)begin
+    if(aurora_upmode_i && laser_start_i)begin
         if(aurora_sel=='d2 && laser_vld_i)
             aurora_sel <= #TCQ 'd0;
         else if(laser_vld_i)

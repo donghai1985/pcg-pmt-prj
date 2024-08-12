@@ -958,6 +958,29 @@ initial begin
     #10;
     tx_valid    = 0;
 
+
+    // #20000;    
+    // // Sacn end
+    // pmt_scan_en = 0;
+    // tx_valid    = 1;
+    // tx_data     = SYNC_WORD_SCAN_END;
+    // #10;
+    // tx_valid    = 0;
+    
+    // #40000;    
+    // // Sacn start
+    // pmt_scan_en = 1;
+    // tx_valid    = 1;
+    // tx_data     = SYNC_WORD_SCAN_BEGIN;
+    // #10;
+    // tx_valid    = 0;
+    
+    // #80000;    // track flag
+    // tx_valid    = 1;
+    // tx_data     = SYNC_WORD_ENCODE;
+    // #10;
+    // tx_valid    = 0;
+
     #79800;    // track flag
     tx_valid    = 1;
     tx_data     = SYNC_WORD_ENCODE;

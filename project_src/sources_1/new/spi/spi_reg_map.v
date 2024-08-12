@@ -154,7 +154,7 @@ reg     [16-1:0]                    lp_recover_delay        = 'd4;
 reg     [16-1:0]                    lp_recover_hold         = 'd2;
 reg     [16-1:0]                    recover_edge_slot_time  = 'd12;
 
-reg                                 aurora_upmode           = 'd0;
+reg                                 aurora_upmode           = 'd1;
 reg                                 laser_acc_flag_upmode   = 'd0;
 reg                                 laser_fir_upmode        = 'd0;
 `else

@@ -174,7 +174,7 @@ parameter                   ADDR_WIDTH          = 16    ;
 parameter                   LOWPASS_PARA_NUM    = 1     ;
 parameter                   FIR_TAP_NUM         = 51    ;
 parameter                   DS_PARA_NUM         = 2     ;
-parameter                   VERSION             = "PCG_PMTM_v1.5.6     ";
+parameter                   VERSION             = "PCG_PMTM_v1.5.7     ";
 
 // PMT spi slave
 wire                        slave_wr_en                 ;
@@ -1208,10 +1208,33 @@ laser_pre_aurora laser_pre_aurora_inst(
     .aurora_rd_data_count_o         ( aurora_rd_data_count              )
 );
 
+`ifdef SIMULATE
+
+assign aurora_log_clk   = clk_200m;
+assign aurora_txen      = ~aurora_tx_emp;
+
+reg         sim_adc_start           = 'd0;
+reg         sim_adc_start_d         = 'd0;
+reg [8-1:0] sim_adc_end_wait_cnt    = 'h80;
+always @(posedge aurora_log_clk) begin
+    sim_adc_start   <= adc_start;
+    sim_adc_start_d <= sim_adc_start;
+end
+
+always @(posedge aurora_log_clk) begin
+    if(sim_adc_start_d && (~sim_adc_start))
+        sim_adc_end_wait_cnt <= 'd0;
+    else if(~sim_adc_end_wait_cnt[7])
+        sim_adc_end_wait_cnt <= sim_adc_end_wait_cnt + 1;
+end
+
+assign aurora_adc_end = sim_adc_end_wait_cnt[6];
+
+`else
 aurora_8b10b_0_exdes  aurora_8b10b_exdes_inst_0(
     .aurora_log_clk                 ( aurora_log_clk                    ),
-    .aurora_rxen                    ( aurora_rxen                       ),
-    .aurora_rxdata                  ( aurora_rxdata                     ),
+    // .aurora_rxen                    ( aurora_rxen                       ),
+    // .aurora_rxdata                  ( aurora_rxdata                     ),
     .aurora_txen                    ( aurora_txen                       ),
     .aurora_txdata                  ( aurora_txdata                     ),
     .aurora_rd_data_count           ( aurora_rd_data_count              ),
@@ -1235,6 +1258,7 @@ aurora_8b10b_0_exdes  aurora_8b10b_exdes_inst_0(
     .TXP                            ( FPGA_SFP1_TX_P                    ),
     .TXN                            ( FPGA_SFP1_TX_N                    )
 );
+`endif // SIMULATE
 
 ad9265_top_if ad9265_top_if_inst(
     .clk                            ( clk_100m                          ),
