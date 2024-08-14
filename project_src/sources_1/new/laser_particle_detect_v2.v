@@ -18,7 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-`define DOWN_SAMPLE_MOD
+// `define DOWN_SAMPLE_MOD
 
 module laser_particle_detect_v2 #(
     parameter                   TCQ               = 0.1 ,
@@ -29,12 +29,12 @@ module laser_particle_detect_v2 #(
     input                       rst_i                       ,
     
     // light spot spacing, unit lost clk
-    input   [16-1:0]            detect_width_para_i         ,  // 2 * light spot, down sample adc
-    input   [16-1:0]            light_spot_spacing_i        ,  // first light spot, down sample adc
+    input   [32-1:0]            detect_width_para_i         ,  // 2 * light spot, down sample adc
+    // input   [16-1:0]            light_spot_spacing_i        ,  // first light spot, down sample adc
 
-    input                       ds_para_en_i                ,
-    input   [32-1:0]            ds_para_h_i                 ,
-    input   [32-1:0]            ds_para_l_i                 ,
+    // input                       ds_para_en_i                ,
+    // input   [32-1:0]            ds_para_h_i                 ,
+    // input   [32-1:0]            ds_para_l_i                 ,
 
     // acc threshold
     input                       acc_defect_en_i             ,
@@ -45,7 +45,7 @@ module laser_particle_detect_v2 #(
     input                       first_track_ctrl_i          ,
 
     // acc result
-    output                      filter_acc_delay_vld_o      ,
+    // output                      filter_acc_delay_vld_o      ,
     output                      filter_acc_flag_o           ,
     output                      filter_acc_vld_o            ,
     output  [16-1:0]            filter_acc_data_o           ,
@@ -129,34 +129,6 @@ wire                            actu_ds_laser_lost              ;
 //////////////////////////////////////////////////////////////////////////////////
 // *********** Instance Module
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-// pre_laser_align_v2 #(
-//     .DATA_WIDTH                     ( 16                                ) 
-// )laser_align_inst(
-//     // clk & rst 
-//     .clk_i                          ( clk_i                             ),
-//     .rst_i                          ( rst_i                             ),
-
-//     // .light_spot_spacing_i           ( light_spot_spacing_i              ),
-//     .laser_start_i                  ( laser_start_i                     ),
-//     .encode_zero_flag_i             ( encode_zero_flag_i                ),
-//     .laser_delay_vld_i              ( laser_vld_i                        ),
-//     .laser_acc_flag_i               ( laser_acc_flag_i                  ),
-//     .laser_vld_i                    ( laser_vld_i                       ),
-//     .laser_data_i                   ( laser_data_i                      ),
-//     .second_track_en_o              ( second_track_en_o                 ),
-
-//     .pre_laser_rd_ready_i           ( pre_laser_rd_ready_i              ),
-//     .pre_laser_rd_seq_o             ( pre_laser_rd_seq_o                ),
-//     .pre_laser_rd_vld_i             ( pre_laser_rd_vld_i                ),
-//     .pre_laser_rd_data_i            ( pre_laser_rd_data_i               ),
-
-//     .pre_laser_vld_o                ( pre_laser_vld                     ),
-//     .pre_laser_data_o               ( pre_laser_data                    ),
-//     .actu_laser_delay_vld_o         ( actu_laser_delay_vld              ),
-//     .laser_acc_flag_o               ( actu_laser_acc_flag               ),
-//     .actu_laser_vld_o               ( actu_laser_vld                    ),
-//     .actu_laser_data_o              ( actu_laser_data                   )
-// );
 
 `ifdef DOWN_SAMPLE_MOD
 
@@ -182,55 +154,38 @@ uniform_downsample #(
 );
 `else
 
-assign pre_ds_laser_lost = pre_laser_vld ;
-assign pre_ds_laser_data = pre_laser_data;
-assign actu_ds_acc_flag   = actu_laser_acc_flag;
-assign actu_ds_laser_vld  = actu_laser_delay_vld;
-assign actu_ds_laser_data = actu_laser_data[16-1:0];
-assign actu_ds_laser_lost = actu_laser_vld;
+// assign pre_ds_laser_lost = pre_laser_vld ;
+// assign pre_ds_laser_data = pre_laser_data;
+assign actu_ds_acc_flag   = laser_acc_flag_i;
+assign actu_ds_laser_vld  = laser_vld_i;
+assign actu_ds_laser_data = laser_data_i;
+assign actu_ds_laser_lost = laser_vld_i;
 
 `endif // DOWN_SAMPLE_MOD
-
-// pre_particle_filter_v2 pre_particle_filter_inst(
-//     // clk & rst 
-//     .clk_i                          ( clk_i                             ),
-//     .rst_i                          ( rst_i                             ),
-
-//     .pre_laser_vld_i                ( pre_ds_laser_lost                 ),
-//     .pre_laser_data_i               ( pre_ds_laser_data                 ),
-
-//     .pre_filter_thre_i              ( pre_acc_curr_thre_i               ),
-//     // .lp_pre_filter_thre_i           ( lp_pre_acc_curr_thre_i            ),
-
-//     // .pre_filter_vld_o               ( pre_laser_filter_vld              ),
-//     // .pre_filter_data_o              ( pre_laser_filter_data             ),
-//     // .pre_filter_haze_hub_o          ( pre_filter_haze_hub               ),
-//     .pre_filter_result_o            ( pre_laser_filter_curr_result      )
-// );
 
 particle_filter_v2 actu_particle_filter_inst(
     // clk & rst 
     .clk_i                          ( clk_i                             ),
     .rst_i                          ( rst_i                             ),
 
-    .light_spot_spacing_i           ( light_spot_spacing_i              ),
-    .laser_delay_vld_i              ( actu_ds_laser_vld                 ),
+    // .light_spot_spacing_i           ( light_spot_spacing_i              ),
+    // .laser_delay_vld_i              ( actu_ds_laser_vld                 ),
     .laser_acc_flag_i               ( actu_ds_acc_flag                  ),
-    .laser_vld_i                    ( actu_ds_laser_lost                ),
+    .laser_vld_i                    ( actu_ds_laser_vld                 ),
     .laser_data_i                   ( actu_ds_laser_data[16-1:0]        ),
     .laser_haze_data_i              ( laser_haze_data_i                 ),
 
     .filter_curr_thre_i             ( actu_acc_curr_thre_i              ),
-    .filter_cache_thre_i            ( actu_acc_cache_thre_i             ),
+    // .filter_cache_thre_i            ( actu_acc_cache_thre_i             ),
 
-    .filter_delay_vld_o             ( actu_laser_filter_delay_vld       ),
+    // .filter_delay_vld_o             ( actu_laser_filter_delay_vld       ),
     .filter_acc_flag_o              ( actu_laser_filter_acc_flag        ),
     .filter_vld_o                   ( actu_laser_filter_vld             ),
     .filter_data_o                  ( actu_laser_filter_data            ),
     .filter_haze_data_o             ( actu_laser_filter_haze            ),
     .filter_haze_hub_o              ( actu_laser_filter_haze_hub        ),
-    .filter_curr_result_o           ( actu_laser_filter_curr_result     ),
-    .filter_cache_result_o          ( actu_laser_filter_cache_result    )
+    .filter_curr_result_o           ( actu_laser_filter_curr_result     )
+    // .filter_cache_result_o          ( actu_laser_filter_cache_result    )
 );
 
 acc_flag_generate acc_flag_generate_inst(
@@ -241,7 +196,7 @@ acc_flag_generate acc_flag_generate_inst(
     .laser_start_i                  ( laser_start_i                     ),
     .second_track_en_i              ( second_track_en_i                 ),
     .detect_width_para_i            ( detect_width_para_i               ),
-    .filter_delay_vld_i             ( actu_laser_filter_delay_vld       ),
+    // .filter_delay_vld_i             ( actu_laser_filter_delay_vld       ),
     .filter_acc_flag_i              ( actu_laser_filter_acc_flag        ),
     .filter_vld_i                   ( actu_laser_filter_vld             ),
     .filter_data_i                  ( actu_laser_filter_data            ),
@@ -249,16 +204,16 @@ acc_flag_generate acc_flag_generate_inst(
     .filter_haze_hub_i              ( actu_laser_filter_haze_hub        ),
     .pre_filter_result_i            ( pre_track_result_i                ),
     .filter_curr_result_i           ( actu_laser_filter_curr_result     ),
-    .filter_cache_result_i          ( actu_laser_filter_cache_result    ),
+    // .filter_cache_result_i          ( actu_laser_filter_cache_result    ),
     .particle_acc_bypass_i          ( particle_acc_bypass_i             ),
     .first_track_ctrl_i             ( first_track_ctrl_i                ),
 
     .filter_en_i                    ( acc_defect_en_i                   ),
     .pre_widen_result_o             ( pre_widen_result                  ),
     .curr_widen_result_o            ( curr_widen_result                 ),
-    .cache_widen_result_o           ( cache_widen_result                ),
+    // .cache_widen_result_o           ( cache_widen_result                ),
 
-    .filter_delay_vld_o             ( filter_acc_delay_vld_o            ),
+    // .filter_delay_vld_o             ( filter_acc_delay_vld_o            ),
     .filter_acc_flag_o              ( filter_acc_flag_o                 ),
     .filter_vld_o                   ( filter_acc_vld_o                  ),
     .filter_data_o                  ( filter_acc_data_o                 ),
@@ -293,7 +248,7 @@ reg cache_widen_result_d = 'd0;
 always @(posedge clk_i) begin
     pre_widen_result_d      <= #TCQ pre_widen_result  ;
     curr_widen_result_d     <= #TCQ curr_widen_result ;
-    cache_widen_result_d    <= #TCQ cache_widen_result;
+    // cache_widen_result_d    <= #TCQ cache_widen_result;
 end
 
 always @(posedge clk_i) begin
@@ -310,12 +265,12 @@ always @(posedge clk_i) begin
         curr_widen_result_cnt <= #TCQ curr_widen_result_cnt + 1;
 end
 
-always @(posedge clk_i) begin
-    if(~laser_start_d && laser_start_i)
-        cache_widen_result_cnt <= #TCQ 'd0;
-    else if(laser_start_i && (~cache_widen_result_d) && cache_widen_result)
-        cache_widen_result_cnt <= #TCQ cache_widen_result_cnt + 1;
-end
+// always @(posedge clk_i) begin
+//     if(~laser_start_d && laser_start_i)
+//         cache_widen_result_cnt <= #TCQ 'd0;
+//     else if(laser_start_i && (~cache_widen_result_d) && cache_widen_result)
+//         cache_widen_result_cnt <= #TCQ cache_widen_result_cnt + 1;
+// end
 
 assign dbg_acc_flag_cnt_o       = dbg_acc_flag_cnt;
 assign acc_pre_result_o         = pre_widen_result_d;

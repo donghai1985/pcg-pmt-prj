@@ -22,7 +22,7 @@ module track_para_ctrl #(
     parameter                                   TCQ                 = 0.1   ,
     parameter                                   PARA_DDR_ADDR       = 1     ,
     parameter                                   DS_PARA_NUM         = 2     ,
-    parameter                                   LIGHT_SPOT_PARA_NUM = 1     ,
+    parameter                                   LIGHT_SPOT_PARA_NUM = 2     ,
     parameter                                   TRACK_ALIGN_PARA    = 1     ,
     parameter                                   LOWPASS_PARA_NUM    = 1     ,
     parameter                                   FIR_TAP_NUM         = 51    
@@ -43,8 +43,8 @@ module track_para_ctrl #(
     output                                      ds_para_en_o            ,
     output      [32-1:0]                        ds_para_h_o             ,
     output      [32-1:0]                        ds_para_l_o             ,
-    output      [16-1:0]                        light_spot_para_o       ,
-    output      [16-1:0]                        detect_width_para_o     ,
+    output      [32-1:0]                        light_spot_para_o       ,
+    output      [32-1:0]                        detect_width_para_o     ,
     output                                      lowpass_para_vld_o      ,
     output      [32-1:0]                        lowpass_para_data_o     ,
     output                                      fir_post_para_en_o      ,
@@ -78,8 +78,8 @@ reg                                 ds_para_en                  = 'd0;
 reg     [32-1:0]                    ds_para_h                   = 'd0;
 reg     [32-1:0]                    ds_para_l                   = 'd0;
 
-reg     [16-1:0]                    detect_width_para           = 'd0;
-reg     [16-1:0]                    light_spot_para             = 'd0;
+reg     [32-1:0]                    detect_width_para           = 'd0;
+reg     [32-1:0]                    light_spot_para             = 'd0;
 reg                                 lowpass_para_vld            = 'd0;
 reg     [32-1:0]                    lowpass_para_data           = 'd0;
 reg                                 fir_post_para_en            = 'd0;
@@ -145,8 +145,14 @@ end
 // light parameter
 always @(posedge clk_i) begin
     if(track_para_update && track_para_vld_i && (track_para_rcnt == PARA_DDR_ADDR +  DS_PARA_NUM))begin
-        light_spot_para   <= #TCQ track_para_data_i[31:16];
-        detect_width_para <= #TCQ track_para_data_i[15:0];
+        light_spot_para   <= #TCQ track_para_data_i;
+    end
+end
+
+// light parameter
+always @(posedge clk_i) begin
+    if(track_para_update && track_para_vld_i && (track_para_rcnt == PARA_DDR_ADDR +  DS_PARA_NUM + 1))begin
+        detect_width_para <= #TCQ track_para_data_i;
     end
 end
 
@@ -201,9 +207,9 @@ assign fir_tap_vld_o        = fir_tap_vld ;
 assign fir_tap_addr_o       = fir_tap_addr;
 assign fir_tap_data_o       = fir_tap_data;
 
-assign ds_para_en_o         = ds_para_en;
-assign ds_para_h_o          = ds_para_h ;
-assign ds_para_l_o          = ds_para_l ;
+// assign ds_para_en_o         = ds_para_en;
+// assign ds_para_h_o          = ds_para_h ;
+// assign ds_para_l_o          = ds_para_l ;
 
 assign lowpass_para_vld_o   = lowpass_para_vld; 
 assign lowpass_para_data_o  = lowpass_para_data; 

@@ -30,7 +30,7 @@ module acc_time_ctrl_v2 #(
     input                           filter_unit_flag_i      ,
     input                           filter_acc_result_i     ,
 
-    input   [16-1:0]                acc_delay_i             ,
+    input   [18-1:0]                acc_delay_i             ,
     input   [16-1:0]                acc_hold_i              ,
 
     output                          filter_acc_flag_o       
@@ -46,7 +46,7 @@ module acc_time_ctrl_v2 #(
 // *********** Define Register Signal
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 reg                                 cache_bram_din          = 'd0;
-reg         [16-1:0]                cache_bram_waddr        = 'd0;
+reg         [18-1:0]                cache_bram_waddr        = 'd0;
 
 reg                                 acc_flag                = 'd0;
 reg                                 cache_result            = 'd0;
@@ -57,7 +57,7 @@ reg         [16-1:0]                hold_cnt                = 'd0;
 //////////////////////////////////////////////////////////////////////////////////
 // *********** Define Wire Signal
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-wire        [16-1:0]                cache_bram_raddr            ;
+wire        [18-1:0]                cache_bram_raddr            ;
 wire                                cache_bram_dout             ;
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -68,10 +68,10 @@ wire                                cache_bram_dout             ;
 cache_bit_ram cache_bit_ram_inst (
     .clka                           ( clk_i                     ),  // input wire clka
     .wea                            ( filter_unit_flag_i        ),  // input wire [0 : 0] wea
-    .addra                          ( cache_bram_waddr          ),  // input wire [15 : 0] addra
+    .addra                          ( cache_bram_waddr          ),  // input wire [17 : 0] addra
     .dina                           ( cache_bram_din            ),  // input wire [0 : 0] dina
     .clkb                           ( clk_i                     ),  // input wire clkb
-    .addrb                          ( cache_bram_raddr          ),  // input wire [15 : 0] addrb
+    .addrb                          ( cache_bram_raddr          ),  // input wire [17 : 0] addrb
     .doutb                          ( cache_bram_dout           )   // output wire [0 : 0] doutb
 );
 

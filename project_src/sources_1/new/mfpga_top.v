@@ -174,7 +174,7 @@ parameter                   ADDR_WIDTH          = 16    ;
 parameter                   LOWPASS_PARA_NUM    = 1     ;
 parameter                   FIR_TAP_NUM         = 51    ;
 parameter                   DS_PARA_NUM         = 2     ;
-parameter                   VERSION             = "PCG_PMTM_v1.5.7     ";
+parameter                   VERSION             = "PCG_PMTM_v1.5.8     ";
 
 // PMT spi slave
 wire                        slave_wr_en                 ;
@@ -219,9 +219,9 @@ wire    [32-1:0]            ds_para_l                   ;
 
 wire                        lowpass_para_vld            ;
 wire    [32-1:0]            lowpass_para_data           ;
-wire    [16-1:0]            aom_ctrl_delay_abs          ;
-wire    [16-1:0]            light_spot_para             ;
-wire    [16-1:0]            detect_width_para           ;
+wire    [32-1:0]            aom_ctrl_delay_abs          ;
+wire    [32-1:0]            light_spot_para             ;
+wire    [32-1:0]            detect_width_para           ;
 
 wire                        fir_tap_vld                 ;
 wire    [10-1:0]            fir_tap_addr                ;
@@ -688,6 +688,8 @@ spi_reg_map #(
     // .circle_lose_num_o              ( circle_lose_num                   ),
     // .circle_lose_num_delta_o        ( circle_lose_num_delta             ),
     // .uniform_circle_o               ( uniform_circle_num                ),
+    .aom_ctrl_delay_abs_i           ( aom_ctrl_delay_abs                ),
+    .light_spot_para_i              ( light_spot_para                   ),
     .detect_width_para_i            ( detect_width_para                 ),
     .pre_track_dbg_o                ( pre_track_dbg                     ),
     .light_spot_spacing_o           ( light_spot_spacing                ),
@@ -990,13 +992,12 @@ pre_track_pingpang #(
     .clk_i                          ( clk_100m                          ),
     .rst_i                          ( rst_100m                          ),
 
-    .ds_para_en_i                   ( ds_para_en                        ),
-    .ds_para_h_i                    ( ds_para_h                         ),
-    .ds_para_l_i                    ( ds_para_l                         ),
+    // .ds_para_en_i                   ( ds_para_en                        ),
+    // .ds_para_h_i                    ( ds_para_h                         ),
+    // .ds_para_l_i                    ( ds_para_l                         ),
     .pre_track_dbg_i                ( pre_track_dbg                     ),
-    .aom_ctrl_delay_abs_i           ( aom_ctrl_delay_abs                ),
     .light_spot_para_i              ( light_spot_para                   ),
-    .detect_width_para_i            ( detect_width_para                 ),
+    // .detect_width_para_i            ( detect_width_para                 ),
     .check_window_i                 ( check_window                      ),
     .pre_filter_thre_i              ( pre_acc_curr_thre                 ),
 
@@ -1107,10 +1108,10 @@ laser_particle_detect_v2 laser_particle_detect_inst(
     .rst_i                          ( rst_100m                          ),
 
     .detect_width_para_i            ( detect_width_para                 ),
-    .light_spot_spacing_i           ( light_spot_spacing                ),
-    .ds_para_en_i                   ( ds_para_en                        ),
-    .ds_para_h_i                    ( ds_para_h                         ),
-    .ds_para_l_i                    ( ds_para_l                         ),
+    // .light_spot_spacing_i           ( light_spot_spacing                ),
+    // .ds_para_en_i                   ( ds_para_en                        ),
+    // .ds_para_h_i                    ( ds_para_h                         ),
+    // .ds_para_l_i                    ( ds_para_l                         ),
     // acc threshold
     .acc_defect_en_i                ( acc_defect_en && (~acc_cali_mode) ),
     .pre_track_result_i             ( pre_track_result                  ),
@@ -1120,7 +1121,7 @@ laser_particle_detect_v2 laser_particle_detect_inst(
     .first_track_ctrl_i             ( first_track_ctrl                  ),
 
     // acc flag generate
-    .filter_acc_delay_vld_o         ( filter_acc_delay_vld              ),
+    // .filter_acc_delay_vld_o         ( filter_acc_delay_vld              ),
     .filter_acc_flag_o              ( filter_acc_flag                   ),
     .filter_acc_vld_o               ( filter_acc_vld                    ),
     .filter_acc_data_o              ( filter_acc_data                   ),
@@ -1194,7 +1195,7 @@ laser_pre_aurora laser_pre_aurora_inst(
     .acc_pre_result_i               ( acc_pre_result                    ),
     .acc_curr_result_i              ( acc_curr_result                   ),
     .laser_start_i                  ( real_adc_start                    ),
-    .laser_vld_i                    ( filter_acc_delay_vld              ),
+    .laser_vld_i                    ( filter_acc_vld                    ),
     .laser_acc_flag_i               ( filter_acc_flag || acc_cali_ctrl  ),
     .laser_data_i                   ( filter_acc_data                   ),
     .laser_filter_acc_hub_i         ( filter_acc_haze_hub               ),

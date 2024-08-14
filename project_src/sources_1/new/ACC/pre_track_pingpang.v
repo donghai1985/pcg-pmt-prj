@@ -30,9 +30,9 @@ module pre_track_pingpang #(
     input       [32-1:0]                        ds_para_h_i                 ,
     input       [32-1:0]                        ds_para_l_i                 ,
     input                                       pre_track_dbg_i             ,
-    input       [16-1:0]                        aom_ctrl_delay_abs_i        ,
-    input       [16-1:0]                        light_spot_para_i           ,
-    input       [16-1:0]                        detect_width_para_i         ,  // 2 * light spot, down sample adc
+    // input       [32-1:0]                        aom_ctrl_delay_abs_i        ,
+    input       [32-1:0]                        light_spot_para_i           ,
+    // input       [16-1:0]                        detect_width_para_i         ,  // 2 * light spot, down sample adc
     input       [16-1:0]                        check_window_i              ,
     input       [16-1:0]                        pre_filter_thre_i           ,
 
@@ -100,9 +100,9 @@ reg                                             laser_start_d           = 'd0;
 reg             [9-1:0]                         memb_buffer_clear_cnt   = 'h100;
 reg             [9-1:0]                         mema_buffer_clear_cnt   = 'h100;
 
-reg             [17-1:0]                        pre_cache_mema_cnt      = 'd0;
+reg             [32-1:0]                        pre_cache_mema_cnt      = 'd0;
 reg                                             pre_cache_mema_rd_seq   = 'd0;
-reg             [17-1:0]                        pre_cache_memb_cnt      = 'd0;
+reg             [32-1:0]                        pre_cache_memb_cnt      = 'd0;
 reg                                             pre_cache_memb_rd_seq   = 'd0;
 
 reg                                             pre_track_mema_rd_start = 'd0;
@@ -144,9 +144,9 @@ reg                                             pre_laser_data_vld      = 'd0;
 reg             [17-1:0]                        pre_laser_data          = 'd0;
 reg                                             pre_laser_result_vld    = 'd0;
 reg                                             pre_laser_result        = 'd0;
-reg             [16-1:0]                        pre_track_wr_addr       = 'd0;
-reg             [16-1:0]                        pre_result_sum          = 'd0;
-reg             [17-1:0]                        pre_track_result_cnt    = 'd0;
+reg             [18-1:0]                        pre_track_wr_addr       = 'd0;
+reg             [18-1:0]                        pre_result_sum          = 'd0;
+reg             [32-1:0]                        pre_track_result_cnt    = 'd0;
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
 //////////////////////////////////////////////////////////////////////////////////
@@ -170,11 +170,11 @@ wire                                            pre_mema_cache_result       ;
 wire            [16-1:0]                        pre_ds_memb_rd_addr         ;
 wire                                            pre_memb_cache_result       ;
 
-wire            [17-1:0]                        light_spot_spacing          ;
-wire            [17-1:0]                        pre_track_check_window      ;
+wire            [32-1:0]                        light_spot_spacing          ;
+wire            [32-1:0]                        pre_track_check_window      ;
 
 wire            [16-1:0]                        pre_laser_data_abs          ;
-wire            [16-1:0]                        pre_track_rd_addr           ;
+wire            [18-1:0]                        pre_track_rd_addr           ;
 wire                                            pre_track_rd_result         ;
 
 wire                                            pre_track_vld               ;
@@ -208,10 +208,10 @@ wire                                            pre_track_ds_result_vld     ;
 cache_bit_ram cache_bit_ramb_inst (
     .clka                           ( clk_i                             ),  // input wire clka
     .wea                            ( pre_laser_result_vld              ),  // input wire [0 : 0] wea
-    .addra                          ( pre_track_wr_addr                 ),  // input wire [15 : 0] addra
+    .addra                          ( pre_track_wr_addr                 ),  // input wire [17 : 0] addra
     .dina                           ( pre_laser_result                  ),  // input wire [0 : 0] dina
     .clkb                           ( clk_i                             ),  // input wire clkb
-    .addrb                          ( pre_track_rd_addr                 ),  // input wire [15 : 0] addrb
+    .addrb                          ( pre_track_rd_addr                 ),  // input wire [17 : 0] addrb
     .doutb                          ( pre_track_rd_result               )   // output wire [0 : 0] doutb
 );
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
@@ -336,7 +336,7 @@ end
 assign pre_laser_rd_seq = laser_vld_i && pre_laser_flag;
 
 // 读取提前量的主副光斑间隔数据
-assign light_spot_spacing = pre_track_dbg_i ? 'd0 : (light_spot_para_i + light_spot_para_i[15:1]);
+assign light_spot_spacing = pre_track_dbg_i ? 'd0 : (light_spot_para_i + light_spot_para_i[31:1]);
 // assign light_spot_spacing = pre_track_dbg_i ? 'd0 : aom_ctrl_delay_abs_i;
 always @(posedge clk_i) begin
     if(pre_track_mema_rd_start && pre_track_mema_ready_i)
@@ -434,12 +434,12 @@ assign check_window_abs = check_window_i[15] ? ~check_window_i + 1 : check_windo
 
 reg [16-1:0] check_window_supp = 'd0;
 always @(posedge clk_i) begin
-    check_window_supp <= #TCQ light_spot_para_i[15:4] * check_window_abs[4-1:0];
+    check_window_supp <= #TCQ light_spot_para_i[31:4] * check_window_abs[4-1:0];
 end
 
 assign pre_track_check_window = pre_track_dbg_i ? 'd1 : 
-                                (!check_window_i[15]) ? (light_spot_para_i - light_spot_para_i[15:2]) + check_window_supp :
-                                                        (light_spot_para_i - light_spot_para_i[15:2]) - check_window_supp ;
+                                (!check_window_i[15]) ? (light_spot_para_i - light_spot_para_i[31:2]) + check_window_supp :
+                                                        (light_spot_para_i - light_spot_para_i[31:2]) - check_window_supp ;
 // {1'b0,light_spot_spacing[15:1]} + check_window_i + 1 + detect_width_para_i;
 
 always @(posedge clk_i) begin

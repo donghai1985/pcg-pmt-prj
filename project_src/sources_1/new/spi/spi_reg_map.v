@@ -55,7 +55,9 @@ module spi_reg_map #(
     output  wire    [16-1:0]                circle_lose_num_o           ,
     output  wire    [16-1:0]                circle_lose_num_delta_o     ,
     output  wire    [16-1:0]                uniform_circle_o            ,
-    input   wire    [16-1:0]                detect_width_para_i         ,  // 2 * light spot, down sample adc
+    input   wire    [32-1:0]                aom_ctrl_delay_abs_i        ,
+    input   wire    [32-1:0]                light_spot_para_i           ,
+    input   wire    [32-1:0]                detect_width_para_i         ,  // 2 * light spot, down sample adc
     output                                  pre_track_dbg_o             ,
     output  wire    [16-1:0]                light_spot_spacing_o        ,
     output  wire    [16-1:0]                check_window_o              ,
@@ -274,7 +276,7 @@ always @(posedge clk_i) begin
             16'h0020: slave_rd_data_r <= #TCQ {31'd0,bst_vcc_en}        ;
             16'h0024: slave_rd_data_r <= #TCQ {31'd0,pmt_test_en}       ;
 
-            // 16'h0028: slave_rd_data_r <= #TCQ circle_lose_num           ;
+            16'h0028: slave_rd_data_r <= #TCQ light_spot_para_i         ;
             16'h002c: slave_rd_data_r <= #TCQ pre_track_dbg             ;
             16'h0030: slave_rd_data_r <= #TCQ detect_width_para_i       ;
             16'h0034: slave_rd_data_r <= #TCQ light_spot_spacing        ;
@@ -284,7 +286,7 @@ always @(posedge clk_i) begin
             16'h0040: slave_rd_data_r <= #TCQ actu_acc_cache_thre       ;
             16'h0044: slave_rd_data_r <= #TCQ particle_acc_bypass       ;
             16'h0048: slave_rd_data_r <= #TCQ {31'd0,first_track_ctrl}  ;
-            // 16'h004c: slave_rd_data_r <= #TCQ lp_actu_acc_cache_thre    ;
+            16'h004c: slave_rd_data_r <= #TCQ aom_ctrl_delay_abs_i      ;
 
             16'h0050: slave_rd_data_r <= #TCQ lp_recover_factor         ;
             16'h0054: slave_rd_data_r <= #TCQ acc_cali_mode             ;
