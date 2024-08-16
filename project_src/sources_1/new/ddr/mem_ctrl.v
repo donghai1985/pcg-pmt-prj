@@ -72,6 +72,13 @@ module mem_ctrl#(
     output  [MEM_DATA_BITS - 1:0]   ch1_rd_ddr_data         ,
     output                          ch1_rd_ddr_finish       ,
 
+    input                           ch2_wr_ddr_req          ,
+    input   [8-1:0]                 ch2_wr_ddr_len          ,
+    input   [ADDR_WIDTH-1:0]        ch2_wr_ddr_addr         ,
+    output                          ch2_wr_ddr_data_req     ,
+    input   [MEM_DATA_BITS-1:0]     ch2_wr_ddr_data         ,
+    output                          ch2_wr_ddr_finish       ,
+
     input                           ch2_rd_ddr_req          ,
     input   [8-1:0]                 ch2_rd_ddr_len          ,
     input   [ADDR_WIDTH-1:0]        ch2_rd_ddr_addr         ,
@@ -175,12 +182,12 @@ mem_write_arbi#(
     .ch1_wr_ddr_data                ( ch1_wr_ddr_data               ),
     .ch1_wr_ddr_finish              ( ch1_wr_ddr_finish             ),
 
-    .ch2_wr_ddr_req                 ( 0                             ),
-    // .ch2_wr_ddr_len                 ( ch2_wr_ddr_len                ),
-    // .ch2_wr_ddr_addr                ( ch2_wr_ddr_addr               ),
-    // .ch2_wr_ddr_data_req            ( ch2_wr_ddr_data_req           ),
-    // .ch2_wr_ddr_data                ( ch2_wr_ddr_data               ),
-    // .ch2_wr_ddr_finish              ( ch2_wr_ddr_finish             ),
+    .ch2_wr_ddr_req                 ( ch2_wr_ddr_req                ),
+    .ch2_wr_ddr_len                 ( ch2_wr_ddr_len                ),
+    .ch2_wr_ddr_addr                ( ch2_wr_ddr_addr               ),
+    .ch2_wr_ddr_data_req            ( ch2_wr_ddr_data_req           ),
+    .ch2_wr_ddr_data                ( ch2_wr_ddr_data               ),
+    .ch2_wr_ddr_finish              ( ch2_wr_ddr_finish             ),
 
     .ch3_wr_ddr_req                 ( ch3_wr_ddr_req                ),
     .ch3_wr_ddr_len                 ( ch3_wr_ddr_len                ),

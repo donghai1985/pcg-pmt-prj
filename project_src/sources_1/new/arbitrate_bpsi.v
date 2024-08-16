@@ -80,8 +80,8 @@ reg                 [16-1:0]                slave_tx_byte_num           = 'd0;
 reg                 [2-1:0]                 slave_tx_type_cnt           = 'd0;
 
 // ddr readback channel
-reg                 [11-1:0]                ddr_readback_cnt            = 'd0;
-reg                 [11-1:0]                ddr_readback_num            = 'd0;
+reg                 [10-1:0]                ddr_readback_cnt            = 'd0;
+reg                 [10-1:0]                ddr_readback_num            = 'd0;
 reg                                         ddr_readback_st             = 'd0;
 reg                                         ddr_readback_ready          = 'd0;
 reg                                         readback_tx_finish          = 'd0;
@@ -131,7 +131,7 @@ xpm_sync_fifo #(
     .ECC_MODE                   ( "no_ecc"                      ),
     .FIFO_MEMORY_TYPE           ( "block"                       ),
     .READ_MODE                  ( "std"                         ),
-    .FIFO_WRITE_DEPTH           ( 2048                          ),
+    .FIFO_WRITE_DEPTH           ( 1024                          ),
     .PROG_FULL_THRESH           ( 128                           ),
     .WRITE_DATA_WIDTH           ( 32                            ),
     .READ_DATA_WIDTH            ( 32                            ),

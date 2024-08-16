@@ -56,7 +56,7 @@ module readback_vout_buffer #(
 //////////////////////////////////////////////////////////////////////////////////
 // *********** Define Register Signal
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-reg                                 ddr_fifo_rd_en          = 'd0;
+// reg                                 ddr_fifo_rd_en          = 'd0;
 
 //<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
 
@@ -69,6 +69,7 @@ wire                                readback_prog_full      ;
 wire                                readback_full           ;
 wire                                readback_empty          ;
 
+wire                                ddr_fifo_rd_en          ;
 wire                                ddr_fifo_rd_vld         ;
 wire    [DATA_WIDTH-1:0]            ddr_fifo_rd_data        ;
 
@@ -131,6 +132,7 @@ readback_vout_buffer_ctrl #(
     .burst_flag_i                   ( burst_flag                    ),
     .burst_line_i                   ( burst_line                    ),
 
+    .ddr_fifo_empty_o               ( ddr_fifo_empty                ),
     .ddr_fifo_almost_empty_o        ( ddr_fifo_almost_empty         ),
     .ddr_fifo_rd_en_i               ( ddr_fifo_rd_en                ),
     .ddr_fifo_rd_vld_o              ( ddr_fifo_rd_vld               ),
@@ -149,7 +151,7 @@ readback_vout_buffer_ctrl #(
 //////////////////////////////////////////////////////////////////////////////////
 // *********** Logic Design
 //>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-always @(posedge ddr_clk_i) ddr_fifo_rd_en   <= #TCQ ~ddr_fifo_almost_empty && ~readback_prog_full;
+assign ddr_fifo_rd_en = (~ddr_fifo_empty) && (~readback_prog_full);
 
 reg [8-1:0] readback_burst_cnt = 'd0;
 always @(posedge sys_clk_i) begin

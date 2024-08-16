@@ -160,7 +160,7 @@ always@(*)begin
 end
 
 always@(posedge ddr_clk_i)begin
-    rd_ddr_addr <= #TCQ {2'd0,2'd1,3'd0,burst_line[15:0],7'd0};  // 通过burst line控制突发首地址
+    rd_ddr_addr <= #TCQ {2'd1,4'd0,1'd0,burst_line[15:0],7'd0};  // 通过burst line控制突发首地址
 end
 
 always@(posedge ddr_clk_i)begin

@@ -34,6 +34,7 @@ module readback_vout_buffer_ctrl #(
     input                                   burst_flag_i            ,
     input       [32-1:0]                    burst_line_i            ,
 
+    output                                  ddr_fifo_empty_o        ,
     output                                  ddr_fifo_almost_empty_o ,
     input                                   ddr_fifo_rd_en_i        ,
     output                                  ddr_fifo_rd_vld_o       ,
@@ -106,6 +107,7 @@ xpm_sync_fifo #(
     .rd_en_i                    ( ddr_fifo_rd_en_i              ),
     .fifo_rd_vld_o              ( ddr_fifo_rd_vld_o             ),
     .fifo_rd_data_o             ( ddr_fifo_rd_data_o            ),
+    .fifo_empty_o               ( ddr_fifo_empty_o              ),
     .fifo_almost_empty_o        ( ddr_fifo_almost_empty_o       )
 );
 

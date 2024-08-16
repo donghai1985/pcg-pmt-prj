@@ -174,7 +174,7 @@ parameter                   ADDR_WIDTH          = 16    ;
 parameter                   LOWPASS_PARA_NUM    = 1     ;
 parameter                   FIR_TAP_NUM         = 51    ;
 parameter                   DS_PARA_NUM         = 2     ;
-parameter                   VERSION             = "PCG_PMTM_v1.5.8     ";
+parameter                   VERSION             = "PCG_PMTM_v1.6.0     ";
 
 // PMT spi slave
 wire                        slave_wr_en                 ;
@@ -319,6 +319,9 @@ wire    [16-1:0]            filter_acc_data             ;
 wire    [16-1:0]            filter_acc_haze             ;
 wire    [16-1:0]            filter_acc_haze_hub         ;
 wire                        filter_acc_result           ;
+
+wire                        acc_trigger_latch_en        ;
+wire    [256-1:0]           acc_trigger_latch           ;
 
 wire    [16-1:0]            acc_trig_delay              ;
 wire    [16-1:0]            aom_ctrl_delay              ;
@@ -1034,6 +1037,23 @@ pre_track_pingpang #(
     .pre_track_memb_rd_data_i       ( pre_track_memb_rd_data            )
 );
 
+acc_dump_latch acc_dump_latch_inst(
+    // clk & rst
+    .clk_i                          ( clk_100m                          ),
+    .rst_i                          ( rst_100m                          ),
+
+    .pmt_scan_en_i                  ( real_adc_start                    ),
+    .acc_flag_i                     ( filter_acc_result                 ),
+    .light_spot_para_i              ( light_spot_para                   ),
+    .detect_width_para_i            ( detect_width_para                 ),
+    .laser_vld_i                    ( filter_acc_vld                    ),
+    .laser_data_i                   ( filter_acc_data                   ),
+    .laser_haze_data_i              ( filter_acc_haze                   ),
+
+    .acc_trigger_latch_en_o         ( acc_trigger_latch_en              ),
+    .acc_trigger_latch_o            ( acc_trigger_latch                 )
+);
+
 ddr_top u_ddr_top(
     .clk_i                          ( clk_100m                          ),
     .rst_i                          ( rst_100m                          ),
@@ -1075,6 +1095,10 @@ ddr_top u_ddr_top(
     .track_para_rd_vld_o            ( track_para_vld                    ),
     .track_para_rd_data_o           ( track_para_data                   ),
     .fir_tap_burst_line_o           ( track_para_burst_line             ),
+
+    // acc dump
+    .acc_trigger_latch_en_i         ( acc_trigger_latch_en              ),
+    .acc_trigger_latch_i            ( acc_trigger_latch                 ),
 
     // readback ddr
     .ddr_rd_addr_i                  ( ddr_rd_addr                       ),

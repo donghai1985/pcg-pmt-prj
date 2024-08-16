@@ -63,6 +63,10 @@ module ddr_top (
     output      [32-1:0]            track_para_rd_data_o    ,
     output      [16-1:0]            fir_tap_burst_line_o    ,
 
+    // acc dump
+    input                           acc_trigger_latch_en_i  ,
+    input       [256-1:0]           acc_trigger_latch_i     ,
+
     // readback ddr
     input       [32-1:0]            ddr_rd_addr_i           ,
     input                           ddr_rd_en_i             ,
@@ -139,6 +143,13 @@ wire    [ADDR_WIDTH-1:0]            ch1_rd_ddr_addr         ;
 wire                                ch1_rd_ddr_data_valid   ;
 wire    [MEM_DATA_BITS - 1:0]       ch1_rd_ddr_data         ;
 wire                                ch1_rd_ddr_finish       ;
+
+wire                                ch2_wr_ddr_req          ;
+wire    [8-1:0]                     ch2_wr_ddr_len          ;
+wire    [ADDR_WIDTH-1:0]            ch2_wr_ddr_addr         ;
+wire                                ch2_wr_ddr_data_req     ;
+wire    [MEM_DATA_BITS - 1:0]       ch2_wr_ddr_data         ;
+wire                                ch2_wr_ddr_finish       ;
 
 wire                                ch2_rd_ddr_req          ;
 wire    [8-1:0]                     ch2_rd_ddr_len          ;
@@ -340,6 +351,30 @@ fir_tap_vout_buffer #(
     .rd_ddr_finish_i                ( ch1_rd_ddr_finish         ) 
 );
 
+acc_dump_vin_ctrl #(
+    .ADDR_WIDTH                     ( ADDR_WIDTH                ),
+    .DATA_WIDTH                     ( DATA_WIDTH                ),
+    .MEM_DATA_BITS                  ( MEM_DATA_BITS             ),
+    .BURST_LEN                      ( 32                        )    // 256*32/8=1024
+)acc_dump_vin_ctrl_inst(
+    // clk & rst
+    .clk_i                          ( clk_i                     ),
+    .rst_i                          ( rst_i                     ),
+    .ddr_clk_i                      ( ui_clk                    ),
+    .ddr_rst_i                      ( ddr_log_rst               ),
+
+    .pmt_scan_en_i                  ( laser_start_i             ),
+    .acc_trigger_latch_en_i         ( acc_trigger_latch_en_i    ),
+    .acc_trigger_latch_i            ( acc_trigger_latch_i       ),
+
+    .wr_ddr_req_o                   ( ch2_wr_ddr_req            ),
+    .wr_ddr_len_o                   ( ch2_wr_ddr_len            ),
+    .wr_ddr_addr_o                  ( ch2_wr_ddr_addr           ),
+    .ddr_fifo_rd_req_i              ( ch2_wr_ddr_data_req       ),
+    .wr_ddr_data_o                  ( ch2_wr_ddr_data           ),
+    .wr_ddr_finish_i                ( ch2_wr_ddr_finish         ) 
+);
+
 readback_vout_buffer #(
     .ADDR_WIDTH                     ( ADDR_WIDTH                ),
     .DATA_WIDTH                     ( DATA_WIDTH                ),
@@ -410,6 +445,14 @@ mem_ctrl#(
     .ch1_rd_ddr_data                ( ch1_rd_ddr_data           ),
     .ch1_rd_ddr_finish              ( ch1_rd_ddr_finish         ),
 
+    // write channel interface 
+    .ch2_wr_ddr_req                 ( ch2_wr_ddr_req            ),
+    .ch2_wr_ddr_len                 ( ch2_wr_ddr_len            ),
+    .ch2_wr_ddr_addr                ( ch2_wr_ddr_addr           ),
+    .ch2_wr_ddr_data_req            ( ch2_wr_ddr_data_req       ), 
+    .ch2_wr_ddr_data                ( ch2_wr_ddr_data           ),
+    .ch2_wr_ddr_finish              ( ch2_wr_ddr_finish         ),
+    
     .ch2_rd_ddr_req                 ( ch2_rd_ddr_req            ),
     .ch2_rd_ddr_len                 ( ch2_rd_ddr_len            ),
     .ch2_rd_ddr_addr                ( ch2_rd_ddr_addr           ),
